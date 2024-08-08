@@ -8,6 +8,7 @@ import Loader from 'react-loader-spinner'
 import Header from '../Header'
 import Profile from '../Profile'
 import EmployTypeItem from '../EmployTypeItem'
+import LocationItem from '../LocationItem'
 import SalaryRangeItem from '../SalaryRangeItem'
 import JobsList from '../JobsList'
 
@@ -49,6 +50,29 @@ const salaryRangesList = [
   },
 ]
 
+const locationsList = [
+  {
+    locationId: 'HYDERABAD',
+    label: 'Hyderabad',
+  },
+  {
+    locationId: 'BANGALORE',
+    label: 'Bangalore',
+  },
+  {
+    locationId: 'CHENNAI',
+    label: 'Chennai',
+  },
+  {
+    locationId: 'DELHI',
+    label: 'Delhi',
+  },
+  {
+    locationId: 'MUMBAI',
+    label: 'Mumbai',
+  },
+]
+
 const apiStatusConsts = {
   initial: 'INITIAL',
   inProgress: 'IN_PROGRESS',
@@ -63,6 +87,7 @@ class Jobs extends Component {
     apiStatus: apiStatusConsts.initial,
     salaryRange: '',
     employmentType: [],
+    selectedLocations: [],
   }
 
   componentDidMount = () => this.getJoblist()
@@ -70,10 +95,16 @@ class Jobs extends Component {
   getJoblist = async () => {
     this.setState({apiStatus: apiStatusConsts.inProgress})
     const jwtToken = Cookies.get('jwt_token')
-    const {employmentType, salaryRange, searchInput} = this.state
+    const {
+      employmentType,
+      salaryRange,
+      searchInput,
+      selectedLocations,
+    } = this.state
     const employmentTypeString = employmentType.join(',')
+    const selectedLocationsString = selectedLocations.join(',')
 
-    const url = `https://apis.ccbp.in/jobs?employment_type=${employmentTypeString}&minimum_package=${salaryRange}&search=${searchInput}`
+    const url = `https://apis.ccbp.in/jobs?employment_type=${employmentTypeString}&minimum_package=${salaryRange}&search=${searchInput}&location=${selectedLocationsString}`
     console.log(url)
     const options = {
       headers: {
@@ -123,7 +154,7 @@ class Jobs extends Component {
       />
       <h1 className="result-h1">Oops! Something Went Wrong</h1>
       <p className="result-desc">
-        We cannot seem to find the page yor are looking for
+        We cannot seem to find the page you are looking for
       </p>
       <button className="retry-btn" type="button" onClick={this.onClickRetry}>
         Retry
@@ -208,6 +239,18 @@ class Jobs extends Component {
     </ul>
   )
 
+  renderLocationsList = () => (
+    <ul className="sort-list">
+      {locationsList.map(each => (
+        <LocationItem
+          key={each.locationId}
+          locationItemDetails={each}
+          onFilterLocation={this.onFilterLocations}
+        />
+      ))}
+    </ul>
+  )
+
   renderSalaryRangeList = () => (
     <ul className="sort-list">
       {salaryRangesList.map(each => (
@@ -243,6 +286,23 @@ class Jobs extends Component {
     }
   }
 
+  onFilterLocations = locationclicked => {
+    const {selectedLocations} = this.state
+    if (selectedLocations.includes(locationclicked)) {
+      const removedLocationList = selectedLocations.filter(
+        each => each !== locationclicked,
+      )
+      this.setState({selectedLocations: removedLocationList}, this.getJoblist)
+    } else {
+      this.setState(
+        prevState => ({
+          selectedLocations: [...prevState.selectedLocations, locationclicked],
+        }),
+        this.getJoblist,
+      )
+    }
+  }
+
   render() {
     return (
       <div className="Jobs-page-container">
@@ -257,6 +317,9 @@ class Jobs extends Component {
             <hr className="hr-rule" />
             <h1 className="filter-list-heading">Salary Range</h1>
             {this.renderSalaryRangeList()}
+            <hr className="hr-rule" />
+            <h1 className="filter-list-heading">Locations</h1>
+            {this.renderLocationsList()}
           </div>
           <div className="job-list-container">
             {this.renderLaptopSearchInput()}
