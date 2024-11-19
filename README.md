@@ -1,5 +1,5 @@
 In this project, let's build a **Jobby App** by applying the concepts we have learned till now.     
-website link: (sudhijobbyapp.ccbp.tech)   
+website link: (sudhijobbyapp.ccbp.tech) or (https://jobby-app-vert.vercel.app/)
 Login Credentials:    
 username: rahul    
 password: rahul@2021    
